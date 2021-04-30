@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProductGalleryRequest;
-use App\Http\Requests\ProductRequest;
 use App\Models\Product;
-use App\Models\ProductGallery;
-
 use Illuminate\Http\Request;
+use App\Models\ProductGallery;
+use App\Http\Requests\ProductRequest;
+
+use App\Http\Requests\ProductGalleryRequest;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class ProductGalleryController extends Controller
 {
@@ -41,7 +42,6 @@ class ProductGalleryController extends Controller
     public function create()
     {
         $products = Product::all();
-
         return view('pages.product-galleries.create')->with([
             'products'=>$products
         ]);
@@ -56,7 +56,11 @@ class ProductGalleryController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $data['photo'] = $request->file('photo')->store('assets/product', 'public');
+        // $data['photo'] = $request->file('photo')->store('assets/product', 'public');
+        $data['photo'] = Cloudinary::upload($request->file('photo')->getRealPath(), [
+            'folder'=>'ShaynaPhoto'
+        ])->getSecurePath();
+        
         // dd($data);
         ProductGallery::create($data);
         return redirect()->route('product-galleries.index');
